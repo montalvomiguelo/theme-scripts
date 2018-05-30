@@ -5,42 +5,41 @@
  * to users with visual impairments.
  */
 
-import $ from 'jquery';
-
 /**
  * For use when focus shifts to a container rather than a link
  * eg for In-page links, after scroll, focus shifts to content area so that
  * next `tab` is where user expects if focusing a link, just $link.focus();
- *
- * @param {JQuery} $element - The element to be acted upon
  */
-export function pageLinkFocus($element) {
-  const focusClass = 'js-focus-hidden';
+export function pageLinkFocus(element, config = {}) {
+  const { className = "js-focus-hidden" } = config;
+  const savedTabIndex = element.tabIndex;
 
-  $element
-    .first()
-    .attr('tabIndex', '-1')
-    .focus()
-    .addClass(focusClass)
-    .one('blur', callback);
+  element.tabIndex = -1;
+  element.dataset.tabIndex = savedTabIndex;
+  element.focus();
+  element.classList.add(className);
+  element.addEventListener("blur", callback);
 
-  function callback() {
-    $element
-      .first()
-      .removeClass(focusClass)
-      .removeAttr('tabindex');
+  function callback(event) {
+    event.target.removeEventListener(event.type, callback);
+
+    element.tabIndex = savedTabIndex;
+    delete element.dataset.tabIndex;
+    element.classList.remove(className);
   }
 }
 
 /**
  * If there's a hash in the url, focus the appropriate element
  */
+
 export function focusHash() {
   const hash = window.location.hash;
-
+  const element = document.getElementById(hash.slice(1));
   // is there a hash in the url? is it an element on the page?
-  if (hash && document.getElementById(hash.slice(1))) {
-    this.pageLinkFocus($(hash));
+
+  if (hash && element) {
+    pageLinkFocus(element);
   }
 }
 
@@ -48,12 +47,19 @@ export function focusHash() {
  * When an in-page (url w/hash) link is clicked, focus the appropriate element
  */
 export function bindInPageLinks() {
-  $('a[href*=#]').on(
-    'click',
-    (evt) => {
-      this.pageLinkFocus($(evt.currentTarget.hash));
+  const links = document.querySelectorAll('a[href^="#"]');
+
+  links.forEach(link => {
+    const element = document.querySelector(link.hash);
+
+    if (!element) {
+      return;
     }
-  );
+
+    link.addEventListener("click", () => {
+      pageLinkFocus(element);
+    });
+  });
 }
 
 /**
@@ -64,43 +70,42 @@ export function bindInPageLinks() {
  * @param {jQuery} options.$elementToFocus - Element to be focused when focus leaves container
  * @param {string} options.namespace - Namespace used for new focus event handler
  */
-export function trapFocus(options) {
-  const eventName = options.namespace
-    ? `focusin.${options.namespace}`
-    : 'focusin';
 
-  if (!options.$elementToFocus) {
-    options.$elementToFocus = options.$container;
-  }
-
-  options.$container.attr('tabindex', '-1');
-  options.$elementToFocus.focus();
-
-  $(document).on(eventName, (evt) => {
-    if (
-      options.$container[0] !== evt.target &&
-      !options.$container.has(evt.target).length
-    ) {
-      options.$container.focus();
-    }
-  });
+export function trapFocus(container, element) {
+  document.body.style.backgroundColor = "red";
+  //   const eventName = options.namespace
+  //     ? `focusin.${options.namespace}`
+  //     : 'focusin';
+  //   if (!options.$elementToFocus) {
+  //     options.$elementToFocus = options.$container;
+  //   }
+  //   options.$container.attr('tabindex', '-1');
+  //   options.$elementToFocus.focus();
+  //   $(document).on(eventName, (evt) => {
+  //     if (
+  //       options.$container[0] !== evt.target &&
+  //       !options.$container.has(evt.target).length
+  //     ) {
+  //       options.$container.focus();
+  //     }
+  //   });
 }
 
-/**
- * Removes the trap of focus in a particular container
- *
- * @param {object} options - Options to be used
- * @param {jQuery} options.$container - Container to trap focus within
- * @param {string} options.namespace - Namespace used for new focus event handler
- */
-export function removeTrapFocus(options) {
-  const eventName = options.namespace
-    ? `focusin.${options.namespace}`
-    : 'focusin';
+// /**
+//  * Removes the trap of focus in a particular container
+//  *
+//  * @param {object} options - Options to be used
+//  * @param {jQuery} options.$container - Container to trap focus within
+//  * @param {string} options.namespace - Namespace used for new focus event handler
+//  */
+// export function removeTrapFocus(options) {
+//   const eventName = options.namespace
+//     ? `focusin.${options.namespace}`
+//     : 'focusin';
 
-  if (options.$container && options.$container.length) {
-    options.$container.removeAttr('tabindex');
-  }
+//   if (options.$container && options.$container.length) {
+//     options.$container.removeAttr('tabindex');
+//   }
 
-  $(document).off(eventName);
-}
+//   $(document).off(eventName);
+// }

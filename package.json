@@ -1,8 +1,7 @@
 {
   "name": "theme-scripts",
   "version": "1.0.0-alpha.0",
-  "description":
-    "A collection of helpful script libraries that help you make better Shopify themes.",
+  "description": "A collection of helpful script libraries that help you make better Shopify themes.",
   "main": "index.js",
   "scripts": {
     "test": "jest",
@@ -10,7 +9,9 @@
     "build": "node_modules/.bin/lerna run build"
   },
   "repository": "https://github.com/Shopify/theme-scripts",
-  "keywords": ["Shopify"],
+  "keywords": [
+    "Shopify"
+  ],
   "author": "Shopify Inc.",
   "license": "MIT",
   "devDependencies": {
@@ -18,7 +19,10 @@
     "babel-core": "^6.26.3",
     "babel-jest": "^23.0.1",
     "babel-preset-shopify": "^16.2.0",
+    "express": "^4.16.3",
     "jest": "^23.0.1",
-    "lerna": "^2.5.1"
+    "jest-puppeteer": "^3.0.1",
+    "lerna": "^2.5.1",
+    "puppeteer": "^1.4.0"
   }
 }
